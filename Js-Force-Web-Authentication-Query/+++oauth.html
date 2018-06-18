@@ -1,0 +1,25 @@
+<html>
+
+<head>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.7.0/jsforce.min.js"></script>
+    <script>
+        alert("Connection");
+        jsforce.browser.init({
+            clientId: '3MVG92u_V3UMpV.hQHi5jeUtfhql5voQwOPh.JE0fpg.IKDqTrqxKB1.oIJWnEP_K55QeciYkkEsijuVGwISx',
+            redirectUri: 'http://localhost:8080',
+            proxyUrl: 'http://localhost:8080/proxy/'
+        });
+        // Login URL
+        jsforce.browser.login();
+
+        jsforce.browser.on('connect', function(conn) {
+            alert(conn);
+        });
+    </script>
+</head>
+
+<body>
+    <p>Connection.html</p>
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.7.0/jsforce.min.js"></script>
+    <title></title>
+</head>
+
+<body>
+    <button id="login" onClick="login()">Login</button>
+    <button id="query" onClick="query()">Query</button>
+    <button id="ligthingout" onClick="ligthingout()">Ligthing Out - Chatter</button>
+    <div id="result"></div>
+    <div id="lexcontainer"></div>
+    <script>
+        jsforce.browser.init({
+            clientId: '3MVG92u_V3UMpV.hQHi5jeUtfhql5voQwOPh.JE0fpg.IKDqTrqxKB1.oIJWnEP_K55QeciYkkEsijuVGwISx',
+            redirectUri: 'http://localhost:8080',
+            proxyUrl: 'http://localhost:8080/proxy/',
+            loginUrl: 'https://test.salesforce.com'
+        });
+        if (jsforce.browser.isLoggedIn()) {
+            console.log('Logged in', jsforce.browser.connection.userInfo);
+            var loginButton = document.getElementById('login');
+            loginButton.style.display = 'none';
+        } else {
+            console.log('Not logged in');
+            var queryButton = document.getElementById('query');
+            queryButton.style.display = 'none';
+            var queryButton = document.getElementById('ligthingout');
+            queryButton.style.display = 'none';
+        }
+        // Login Service
+        function login() {
+            jsforce.browser.connection.loginUrl = ''
+            jsforce.browser.login();
+            jsforce.browser.on('connect', function(conn) {
+                location.href = '/';
+            });
+        }
+        // Query Service
+        function query() {
+            console.log('isLoggedIn: ', jsforce.browser.isLoggedIn());
+            jsforce.browser.connection.query('SELECT Id, Name FROM Account', function(err, res) {
+                if (err) {
+                    console.err(err);
+                } else {
+                    var result = document.getElementById('result');
+                    var names = [];
+                    for (var i = 0; i < res.records.length; i++) {
+                        names.push(res.records[i].Name);
+                    }
+
+                    result.innerHTML = names.toString();
+                    console.log(res);
+                }
+            });
+        }
+
+        function ligthingout() {
+            var _lightningReady = false;
+            if (!$.cookie("AccToken")) {
+                alert("Login to Salesforce First!!!");
+            } else {
+                createChatterFeed('NEWS');
+            }
+
+            function setupLightning(callback) {
+                var appName = "c:LightningOutDemo";
+                if (_lightningReady) {
+                    if (typeof callback === "function") {
+                        callback();
+                    }
+                } else {
+                    // Transform the URL for Lightning
+                    var url = $.cookie("InstURL");
+                    //var url = $.cookie("https://efficiency-java-908.lightning.force.com");
+                    url = url.replace("my.salesforce", "lightning.force");
+                    $Lightning.use(appName,
+                        function() {
+                            _lightningReady = true;
+                            document.getElementById("lexcontainer").style.display = "";
+                            if (typeof callback === "function") {
+                                callback();
+                            }
+                        }, 'https://data-energy-210.lightning.force.com', $.cookie("AccToken"));
+                }
+            }
+
+            function createChatterFeed(type, subjectId) {
+                setupLightning(function() {
+                    $Lightning.createComponent("forceChatter:feed", {
+                        type: type,
+                        subjectId: subjectId
+                    }, "lexcontainer");
+                });
+            }
+        }
+    </script>
+
+</body>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="https://data-energy-210.lightning.force.com/lightning/lightning.out.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+
+</html>
